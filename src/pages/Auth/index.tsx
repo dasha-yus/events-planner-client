@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import AuthImage from "../../assets/images/auth.jpeg";
+import AuthImage from "../../assets/images/auth.jpg";
 import { InputText } from "primereact/inputtext";
 import { Button } from "primereact/button";
 import { Link, useNavigate } from "react-router-dom";

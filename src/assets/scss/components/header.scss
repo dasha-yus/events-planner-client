@@ -1,0 +1,31 @@
+@import "../variables.scss";
+
+.navbar {
+  background-color: $secondary;
+  color: #fff;
+  width: 100%;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 40px;
+
+  &_left, &_right {
+    display: flex;
+    align-items: center;
+  }
+}
+
+.link {
+  text-decoration: none;
+  font-size: 1.2rem;
+  margin: 0 15px;
+}
+
+.nav-link {
+  color: #fff;
+
+  &_active {
+    color: $primary;
+  }
+}

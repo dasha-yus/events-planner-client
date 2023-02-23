@@ -3,7 +3,8 @@
 body {
   margin: 0;
   padding: 0;
-  overflow-y: hidden;
+  // overflow-y: hidden;
+  background-color: $background;
   font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif,
     "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
 }
@@ -11,5 +12,27 @@ body {
 h1 {
   padding: 0;
   margin: 0;
-  color: $color-text-01;
+  color: $primary;
+}
+
+h2 {
+  padding: 0;
+  margin: 0;
+  text-align: center;
+}
+
+h4 {
+  padding: 0;
+  margin: 0;
+}
+
+.app {
+  padding: 40px;
+  overflow-y: auto;
+}
+
+.need-flex {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }

@@ -1,0 +1,52 @@
+@import "../variables.scss";
+
+.statistics {
+  &_top-row {
+    display: flex;
+    align-items: flex-start;
+    justify-content: flex-start;
+  }
+}
+
+.block {
+  color: #fff;
+  background-color: $secondary;
+  border-radius: 10px;
+  padding: 40px 30px;
+}
+
+.expenses {
+  width: 600px;
+}
+
+.income {
+  width: 600px;
+  margin-bottom: 40px;
+
+  &_value {
+    width: 25%;
+    text-align: center;
+  }
+
+  &_value h2 {
+    font-size: 2.5rem;
+  }
+}
+
+.income-per-period {
+  height: 746px;
+  width: 90%;
+
+  &_chart {
+    height: 90%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+}
+
+.menu-item {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+}
