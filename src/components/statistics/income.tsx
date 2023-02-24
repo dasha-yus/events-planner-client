@@ -1,24 +1,66 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { ProgressBar } from "primereact/progressbar";
+import { getCurrentMonth } from "../../utils/date";
+import { getJsonValue, getPlainValue } from "../../utils/localStorage";
+import { CurrencyISO } from "../../utils/constants";
 
 const IncomeBlock = () => {
-  const x = 120;
-  const y = 40;
+  const [earnedByn, setEarnedByn] = useState(1450);
+  const [spentByn, setSpentByn] = useState(360);
+  const [earnedCurrency, setEarnedCurrency] = useState(0);
+  const [spentCurrency, setSpentCurrency] = useState(0);
+  const [income, setIncome] = useState(0);
+  const [currencySymbol, setCurrencySymbol] = useState("Br");
 
-  const val1 = (x * 100) / (x + y);
-  const val2 = (y * 100) / (x + y);
+  const val1 = (earnedByn * 100) / (earnedByn + spentByn);
+  const val2 = (spentByn * 100) / (earnedByn + spentByn);
+  const currency = getPlainValue("currency");
+  const rates = getJsonValue("rates");
+
+  useEffect(() => {
+    if (currency && rates && currency !== CurrencyISO.BYN) {
+      const multiplier = rates[currency];
+      setEarnedCurrency(Math.round(earnedByn * +multiplier));
+      setSpentCurrency(Math.round(spentByn * +multiplier));
+      setIncome(earnedCurrency - spentCurrency);
+    }
+    switch (currency) {
+      case CurrencyISO.USD:
+        setCurrencySymbol("$");
+        return;
+      case CurrencyISO.EUR:
+        setCurrencySymbol("€");
+        return;
+      case CurrencyISO.BYN:
+        setCurrencySymbol("Br");
+        return;
+      default:
+        setCurrencySymbol("$");
+        return;
+    }
+  }, [currency, earnedByn, earnedCurrency, spentCurrency, rates, spentByn]);
 
   const displayValueTemplateX = (value: number) => {
-    return <React.Fragment>{x}$</React.Fragment>;
+    return (
+      <React.Fragment>
+        {earnedCurrency}
+        {currencySymbol}
+      </React.Fragment>
+    );
   };
 
   const displayValueTemplateY = (value: number) => {
-    return <React.Fragment>{y}$</React.Fragment>;
+    return (
+      <React.Fragment>
+        {spentCurrency}
+        {currencySymbol}
+      </React.Fragment>
+    );
   };
 
   return (
     <div className="block income">
-      <h2 className="mb-3">Доход за март</h2>
+      <h2 className="mb-3">Доход за {getCurrentMonth().toLowerCase()}</h2>
       <div className="need-flex">
         <div style={{ width: "70%" }}>
           <div className="mb-3">
@@ -41,8 +83,11 @@ const IncomeBlock = () => {
           </div>
         </div>
         <div className="income_value">
-          <h2>${x - y}</h2>
-          <h4>прибыль</h4>
+          <h2>
+            {currency !== CurrencyISO.BYN && <span>{currencySymbol}</span>}
+            {income}
+          </h2>
+          <h4>прибыль{currency === CurrencyISO.BYN && <span>{currencySymbol}</span>}</h4>
         </div>
       </div>
     </div>

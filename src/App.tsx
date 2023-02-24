@@ -1,6 +1,6 @@
 import React from "react";
 import "./App.scss";
-import { Routes, Route, Navigate } from "react-router-dom";
+import { Routes, Route, Navigate, useLocation } from "react-router-dom";
 import AuthPage from "./pages/Auth";
 import NotFound from "./pages/NotFound";
 import Header from "./components/layout/Header";
@@ -9,10 +9,13 @@ import StatisticsPage from "./pages/Statistics";
 import Footer from "./components/layout/Footer";
 
 function App() {
+  const location = useLocation();
+  const isLoginPage = location.pathname === "/login";
+
   return (
-    <>
-      <Header />
-      <div className="app">
+    <div className="app">
+      {isLoginPage || <Header />}
+      <div className={isLoginPage ? undefined : "content"}>
         <Routes>
           <Route path="/" element={<Navigate to="/home" replace />} />
           <Route path="/home" element={<CalendarPage />} />
@@ -21,8 +24,8 @@ function App() {
           <Route path="*" element={<NotFound />} />
         </Routes>
       </div>
-      <Footer />
-    </>
+      {isLoginPage || <Footer />}
+    </div>
   );
 }
 

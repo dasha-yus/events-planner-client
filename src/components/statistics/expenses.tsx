@@ -1,25 +1,44 @@
 import React, { useEffect, useState } from "react";
 import { Chart } from "primereact/chart";
+import { getCurrentMonth } from "../../utils/date";
+import { pieChartColors, pieChartColorsHover } from "../../utils/colors";
 
 const ExpensesBlock = () => {
   const [chartData, setChartData] = useState({});
+  const [chartValues, setChartValues] = useState([
+    { item: "Аренда", value: 28 },
+    { item: "Коммунальные услуги", value: 10 },
+    { item: "Прочее", value: 2 },
+  ]);
 
   useEffect(() => {
     const documentStyle = getComputedStyle(document.documentElement);
     const data = {
       datasets: [
         {
-          data: [28, 10, 2],
-          backgroundColor: [
-            documentStyle.getPropertyValue("--blue-500"),
-            documentStyle.getPropertyValue("--yellow-500"),
-            documentStyle.getPropertyValue("--green-500"),
-          ],
-          hoverBackgroundColor: [
-            documentStyle.getPropertyValue("--blue-400"),
-            documentStyle.getPropertyValue("--yellow-400"),
-            documentStyle.getPropertyValue("--green-400"),
-          ],
+          data: chartValues.map((val) => val.value),
+          backgroundColor: chartValues
+            .map((val) => val.item)
+            .map((val) =>
+              documentStyle.getPropertyValue(
+                pieChartColors[
+                  chartValues
+                    .map((val) => val.item)
+                    .indexOf(val) as keyof typeof pieChartColors
+                ]
+              )
+            ),
+          hoverBackgroundColor: chartValues
+            .map((val) => val.item)
+            .map((val) =>
+              documentStyle.getPropertyValue(
+                pieChartColorsHover[
+                  chartValues
+                    .map((val) => val.item)
+                    .indexOf(val) as keyof typeof pieChartColorsHover
+                ]
+              )
+            ),
         },
       ],
     };
@@ -29,7 +48,7 @@ const ExpensesBlock = () => {
 
   return (
     <div className="block expenses">
-      <h2 className="mb-3">Расходы за март</h2>
+      <h2 className="mb-3">Расходы за {getCurrentMonth().toLowerCase()}</h2>
       <div className="need-flex">
         <Chart
           type="doughnut"
@@ -57,27 +76,23 @@ const ExpensesBlock = () => {
           ]}
         />
         <div>
-          <div className="menu-item">
-            <i
-              className="pi pi-circle"
-              style={{ color: "var(--blue-500)" }}
-            ></i>
-            <h3 className="ml-2">Аренда</h3>
-          </div>
-          <div className="menu-item">
-            <i
-              className="pi pi-circle"
-              style={{ color: "var(--yellow-500)" }}
-            ></i>
-            <h3 className="ml-2">Коммунальные услуги</h3>
-          </div>
-          <div className="menu-item">
-            <i
-              className="pi pi-circle"
-              style={{ color: "var(--green-500)" }}
-            ></i>
-            <h3 className="ml-2">Прочее</h3>
-          </div>
+          {chartValues.map((val) => (
+            <div className="menu-item" key={val.item}>
+              <i
+                className="pi pi-circle"
+                style={{
+                  color: `var(${
+                    pieChartColors[
+                      chartValues
+                        .map((val) => val.item)
+                        .indexOf(val.item) as keyof typeof pieChartColors
+                    ]
+                  })`,
+                }}
+              ></i>
+              <h3 className="ml-2">{val.item}</h3>
+            </div>
+          ))}
         </div>
       </div>
     </div>

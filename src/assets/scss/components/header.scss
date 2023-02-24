@@ -10,7 +10,8 @@
   justify-content: space-between;
   padding: 0 40px;
 
-  &_left, &_right {
+  &_left,
+  &_right {
     display: flex;
     align-items: center;
   }
@@ -27,5 +28,27 @@
 
   &_active {
     color: $primary;
+  }
+}
+
+.currency {
+  font-size: 1.2rem;
+
+  &:hover {
+    cursor: pointer;
+  }
+
+  &_menu-item {
+    padding: 12px 20px;
+
+    &:hover {
+      cursor: pointer;
+      background-color: $background;
+    }
+  }
+
+  &_selected {
+    background-color: $background;
+    font-weight: bold;
   }
 }
