@@ -2,21 +2,35 @@ import React, { useEffect, useState } from "react";
 import { Chart } from "primereact/chart";
 import { getCurrentMonth } from "../../utils/date";
 import { pieChartColors, pieChartColorsHover } from "../../utils/colors";
+import { useSelector } from "react-redux";
+import { RootState } from "../../store";
+import { getJsonValue } from "../../utils/localStorage";
+import { CurrencyISO } from "../../utils/constants";
 
 const ExpensesBlock = () => {
   const [chartData, setChartData] = useState({});
-  const [chartValues, setChartValues] = useState([
+  const chartValues = [
     { item: "Аренда", value: 28 },
     { item: "Коммунальные услуги", value: 10 },
     { item: "Прочее", value: 2 },
-  ]);
+  ];
+  const [currencySymbol, setCurrencySymbol] = useState("Br");
+  const [expensesCurrency, setExpensesCurrency] = useState(0);
+  const currency = useSelector((state: RootState) => state.currency.value);
+  const rates = getJsonValue("rates");
+  const expensesByn = chartValues.reduce((acc, curr) => acc + curr.value, 0);
 
   useEffect(() => {
     const documentStyle = getComputedStyle(document.documentElement);
+    const multiplier = rates && rates[currency];
     const data = {
       datasets: [
         {
-          data: chartValues.map((val) => val.value),
+          data: chartValues.map((val) =>
+            currency === CurrencyISO.BYN
+              ? val.value
+              : val.value * +(multiplier || 1)
+          ),
           backgroundColor: chartValues
             .map((val) => val.item)
             .map((val) =>
@@ -42,9 +56,27 @@ const ExpensesBlock = () => {
         },
       ],
     };
-
     setChartData(data);
-  }, []);
+
+    if (multiplier && currency !== CurrencyISO.BYN) {
+      setExpensesCurrency(Math.round(expensesByn * +multiplier));
+    }
+
+    switch (currency) {
+      case CurrencyISO.USD:
+        setCurrencySymbol("$");
+        return;
+      case CurrencyISO.EUR:
+        setCurrencySymbol("€");
+        return;
+      case CurrencyISO.BYN:
+        setCurrencySymbol("Br");
+        return;
+      default:
+        setCurrencySymbol("$");
+        return;
+    }
+  }, [currency]);
 
   return (
     <div className="block expenses">
@@ -64,7 +96,10 @@ const ExpensesBlock = () => {
                 ctx.font = `${fontSize}em sans-serif`;
                 ctx.textBaseline = "top";
                 ctx.fillStyle = "#fff";
-                const text = "$40";
+                const text =
+                  currency === CurrencyISO.BYN
+                    ? expensesByn + currencySymbol
+                    : currencySymbol + expensesCurrency;
                 const textX = Math.round(
                   (width - ctx.measureText(text).width) / 2
                 );

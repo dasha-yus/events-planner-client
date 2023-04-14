@@ -7,13 +7,15 @@ import { Menu } from "primereact/menu";
 import { Toast } from "primereact/toast";
 import Logo from "../../assets/images/logo-light.png";
 import { classNames } from "primereact/utils";
-import { setPlainValue } from "../../utils/localStorage";
 import { CurrencyISO } from "../../utils/constants";
+import { useDispatch } from "react-redux";
+import { switchCurrency } from "../../store/slices/currencyReducer";
 
 const Header = () => {
   const menu = useRef<any>(null);
   const currency = useRef<any>(null);
   const toast = useRef<any>(null);
+  const dispatch = useDispatch()
 
   const [currentCurrency, setCurrentCurrency] = useState("USD");
 
@@ -34,9 +36,9 @@ const Header = () => {
     },
   ];
 
-  const selectCurrency = (iso: string) => {
+  const selectCurrency = (iso: CurrencyISO) => {
     setCurrentCurrency(iso);
-    setPlainValue("currency", iso);
+    dispatch(switchCurrency(iso))
     currency.current.toggle(true);
   };
 

@@ -1,12 +1,14 @@
 import React, { useEffect, useState } from "react";
 import { ProgressBar } from "primereact/progressbar";
 import { getCurrentMonth } from "../../utils/date";
-import { getJsonValue, getPlainValue } from "../../utils/localStorage";
 import { CurrencyISO } from "../../utils/constants";
+import { useSelector } from "react-redux";
+import { RootState } from "../../store";
+import { getJsonValue } from "../../utils/localStorage";
 
 const IncomeBlock = () => {
-  const [earnedByn, setEarnedByn] = useState(1450);
-  const [spentByn, setSpentByn] = useState(360);
+  const earnedByn = 380;
+  const spentByn = 40;
   const [earnedCurrency, setEarnedCurrency] = useState(0);
   const [spentCurrency, setSpentCurrency] = useState(0);
   const [income, setIncome] = useState(0);
@@ -14,16 +16,21 @@ const IncomeBlock = () => {
 
   const val1 = (earnedByn * 100) / (earnedByn + spentByn);
   const val2 = (spentByn * 100) / (earnedByn + spentByn);
-  const currency = getPlainValue("currency");
+  const currency = useSelector((state: RootState) => state.currency.value);
   const rates = getJsonValue("rates");
 
   useEffect(() => {
-    if (currency && rates && currency !== CurrencyISO.BYN) {
-      const multiplier = rates[currency];
-      setEarnedCurrency(Math.round(earnedByn * +multiplier));
-      setSpentCurrency(Math.round(spentByn * +multiplier));
-      setIncome(earnedCurrency - spentCurrency);
+    if (currency && rates) {
+      if (currency !== CurrencyISO.BYN) {
+        const multiplier = rates[currency];
+        setEarnedCurrency(Math.round(earnedByn * +multiplier));
+        setSpentCurrency(Math.round(spentByn * +multiplier));
+      } else {
+        setEarnedCurrency(earnedByn);
+        setSpentCurrency(spentByn);
+      }
     }
+    setIncome(earnedCurrency - spentCurrency);
     switch (currency) {
       case CurrencyISO.USD:
         setCurrencySymbol("$");
@@ -38,7 +45,7 @@ const IncomeBlock = () => {
         setCurrencySymbol("$");
         return;
     }
-  }, [currency, earnedByn, earnedCurrency, spentCurrency, rates, spentByn]);
+  }, [currency, earnedByn, earnedCurrency, spentCurrency, spentByn, rates]);
 
   const displayValueTemplateX = (value: number) => {
     return (
@@ -86,8 +93,9 @@ const IncomeBlock = () => {
           <h2>
             {currency !== CurrencyISO.BYN && <span>{currencySymbol}</span>}
             {income}
+            {currency === CurrencyISO.BYN && <span>{currencySymbol}</span>}
           </h2>
-          <h4>прибыль{currency === CurrencyISO.BYN && <span>{currencySymbol}</span>}</h4>
+          <h4>прибыль</h4>
         </div>
       </div>
     </div>

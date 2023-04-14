@@ -9,11 +9,17 @@ import {
   subtractYears,
 } from "../../utils/date";
 import { monthsNames } from "../../utils/months";
+import { useSelector } from "react-redux";
+import { RootState } from "../../store";
+import { getJsonValue } from "../../utils/localStorage";
+import { CurrencyISO } from "../../utils/constants";
 
 const IncomePerPeriod = () => {
   const [chartData, setChartData] = useState({});
   const [chartOptions, setChartOptions] = useState({});
   const [visible, setVisible] = useState(false);
+  const currency = useSelector((state: RootState) => state.currency.value);
+  const rates = getJsonValue("rates");
   // actual dates
   const [startDate, setStartDate] = useState(subtractYears(new Date(), 1));
   const [endDate, setEndDate] = useState(new Date());
@@ -30,13 +36,17 @@ const IncomePerPeriod = () => {
       startDate,
       subtractMonths(dateTo, 1)
     );
+    const dataPerPeriod = [65, 59, 80, 81, 56, 63, 54, 80, 75, 62, 77, 92];
+    const multiplier = rates && rates[currency];
     const data = {
       labels: months.map(
         (obj) => monthsNames[obj.month as keyof typeof monthsNames]
       ),
       datasets: [
         {
-          data: [65, 59, 80, 81, 56, 63, 54, 80, 75, 62, 77, 92],
+          data: dataPerPeriod.map((val) =>
+            currency === CurrencyISO.BYN ? val : val * +(multiplier || 1)
+          ),
           fill: true,
           borderColor: documentStyle.getPropertyValue("--teal-400"),
           tension: 0.4,
@@ -73,7 +83,7 @@ const IncomePerPeriod = () => {
 
     setChartData(data);
     setChartOptions(options);
-  }, [endDate, startDate]);
+  }, [endDate, startDate, currency]);
 
   const submitSettings = () => {
     setStartDate(dateStart);

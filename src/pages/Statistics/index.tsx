@@ -10,27 +10,27 @@ import { ProgressSpinner } from "primereact/progressspinner";
 const StatisticsPage = () => {
   const toast = useRef<any>(null);
   const errorAlert = useRef<any>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    axios
-      .get(
-        `${process.env.REACT_APP_API_LAYER_BASE_PATH}?base=BYN&apikey=${process.env.REACT_APP_API_LAYER_KEY}&symbols=EUR,USD`
-      )
-      .then((response) => {
-        setJsonValue("rates", response.data.rates);
-        setLoading(false);
-      })
-      .catch((err) => {
-        toast.current.show({
-          severity: "error",
-          summary: "Error",
-          detail: err.message || "Something went wrong",
-          life: 3000,
-        });
-        setLoading(false);
-      });
-  }, []);
+  // useEffect(() => {
+  //   axios
+  //     .get(
+  //       `${process.env.REACT_APP_API_LAYER_BASE_PATH}?base=BYN&apikey=${process.env.REACT_APP_API_LAYER_KEY}&symbols=EUR,USD`
+  //     )
+  //     .then((response) => {
+  //       setJsonValue("rates", response.data.rates);
+  //       setLoading(false);
+  //     })
+  //     .catch((err) => {
+  //       toast.current.show({
+  //         severity: "error",
+  //         summary: "Error",
+  //         detail: err.message || "Something went wrong",
+  //         life: 3000,
+  //       });
+  //       setLoading(false);
+  //     });
+  // }, []);
 
   return (
     <>
