@@ -1,14 +1,20 @@
 import React, { useState } from "react";
-import AuthImage from "../../assets/images/auth.jpg";
 import { InputText } from "primereact/inputtext";
+import { Message } from "primereact/message";
 import { Button } from "primereact/button";
 import { Link, useNavigate } from "react-router-dom";
 import { useFormik } from "formik";
 import { classNames } from "primereact/utils";
+import { useDispatch } from "react-redux";
+
+import AuthImage from "../../assets/images/auth.jpg";
+import { loginUser, registerUser } from "../../store/slices/authSlice";
 
 const AuthPage = () => {
   const [isAccountRegistered, setIsAccountRegistered] = useState(true);
+  const [apiError, setApiError] = useState("");
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const switchIsAccountRegistered = () => {
     setIsAccountRegistered(!isAccountRegistered);
@@ -19,6 +25,8 @@ const AuthPage = () => {
       email: "",
       password: "",
       passwordCheck: "",
+      firstname: "",
+      lastname: "",
     },
     validate: (data: any) => {
       let errors: any = {};
@@ -37,16 +45,34 @@ const AuthPage = () => {
 
       if (!isAccountRegistered) {
         if (!data.passwordCheck) {
-          errors.passwordCheck = "Поле 'Подтвердите пароль' обязательно для заполнения";
+          errors.passwordCheck =
+            "Поле 'Подтвердите пароль' обязательно для заполнения";
         } else if (data.password !== data.passwordCheck) {
           errors.passwordCheck = "Пароли не совпадают";
+        }
+
+        if (!data.firstname) {
+          errors.firstname = "Поле 'Имя' обязательно для заполнения";
+        }
+
+        if (!data.lastname) {
+          errors.lastname = "Поле 'Фамилия' обязательно для заполнения";
         }
       }
 
       return errors;
     },
-    onSubmit: (data: any) => {
-      navigate("/home");
+    onSubmit: async (data: any) => {
+      try {
+        isAccountRegistered
+          ? // @ts-ignore
+            await dispatch(loginUser(data)).unwrap()
+          : // @ts-ignore
+            await dispatch(registerUser(data)).unwrap();
+        navigate("/home");
+      } catch (err: any) {
+        setApiError(err.message);
+      }
     },
   });
 
@@ -105,21 +131,62 @@ const AuthPage = () => {
             {getFormErrorMessage("password")}
           </div>
           {isAccountRegistered || (
+            <>
+              <div className="mb-4 form-group">
+                <span className="p-input-icon-left">
+                  <i className="pi pi-lock" />
+                  <InputText
+                    name="passwordCheck"
+                    placeholder="Подтвердите пароль"
+                    value={formik.values.passwordCheck}
+                    onChange={formik.handleChange}
+                    className={classNames("form-group_input", {
+                      "p-invalid": isFormFieldValid("password"),
+                    })}
+                    type="password"
+                  />
+                </span>
+                {getFormErrorMessage("passwordCheck")}
+              </div>
+              <div className="mb-4 form-group">
+                <span className="p-input-icon-left">
+                  <i className="pi pi-user" />
+                  <InputText
+                    name="firstname"
+                    value={formik.values.firstname}
+                    onChange={formik.handleChange}
+                    placeholder="Имя"
+                    className={classNames("form-group_input", {
+                      "p-invalid": isFormFieldValid("firstname"),
+                    })}
+                  />
+                </span>
+                {getFormErrorMessage("firstname")}
+              </div>
+              <div className="mb-4 form-group">
+                <span className="p-input-icon-left">
+                  <i className="pi pi-user" />
+                  <InputText
+                    name="lastname"
+                    value={formik.values.lastname}
+                    onChange={formik.handleChange}
+                    placeholder="Фамилия"
+                    className={classNames("form-group_input", {
+                      "p-invalid": isFormFieldValid("lastname"),
+                    })}
+                  />
+                </span>
+                {getFormErrorMessage("lastname")}
+              </div>
+            </>
+          )}
+          {apiError && (
             <div className="mb-4 form-group">
-              <span className="p-input-icon-left">
-                <i className="pi pi-lock" />
-                <InputText
-                  name="passwordCheck"
-                  placeholder="Подтвердите пароль"
-                  value={formik.values.passwordCheck}
-                  onChange={formik.handleChange}
-                  className={classNames("form-group_input", {
-                    "p-invalid": isFormFieldValid("password"),
-                  })}
-                  type="password"
-                />
-              </span>
-              {getFormErrorMessage("passwordCheck")}
+              <Message
+                severity="error"
+                text={apiError}
+                className="form-group_message"
+              />
             </div>
           )}
           <div className="mt-4 form-group">

@@ -9,13 +9,15 @@ import Logo from "../../assets/images/logo-light.png";
 import { classNames } from "primereact/utils";
 import { CurrencyISO } from "../../utils/constants";
 import { useDispatch } from "react-redux";
-import { switchCurrency } from "../../store/slices/currencyReducer";
+import { switchCurrency } from "../../store/slices/currencySlice";
+import { getPlainValue, removeValue } from "../../utils/localStorage";
 
 const Header = () => {
   const menu = useRef<any>(null);
   const currency = useRef<any>(null);
   const toast = useRef<any>(null);
-  const dispatch = useDispatch()
+  const dispatch = useDispatch();
+  const user = JSON.parse(atob(getPlainValue("user") || ""));
 
   const [currentCurrency, setCurrentCurrency] = useState("USD");
 
@@ -31,6 +33,10 @@ const Header = () => {
           label: "Выход",
           icon: "pi pi-sign-out",
           url: "/login",
+          command: () => {
+            removeValue("token");
+            removeValue("user");
+          },
         },
       ],
     },
@@ -38,7 +44,7 @@ const Header = () => {
 
   const selectCurrency = (iso: CurrencyISO) => {
     setCurrentCurrency(iso);
-    dispatch(switchCurrency(iso))
+    dispatch(switchCurrency(iso));
     currency.current.toggle(true);
   };
 
@@ -138,7 +144,7 @@ const Header = () => {
           <Badge value="2"></Badge>
         </i>
         <Avatar
-          label="TY"
+          label={`${user.firstname[0].toUpperCase()}${user.lastname[0].toUpperCase()}`}
           style={{ backgroundColor: "#6366f1", color: "#ffffff" }}
           shape="circle"
           onClick={(e) => menu.current.toggle(e)}

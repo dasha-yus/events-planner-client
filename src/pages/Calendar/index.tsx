@@ -4,6 +4,9 @@ import moment from "moment";
 import { Dialog } from "primereact/dialog";
 import { Button } from "primereact/button";
 import { Dropdown } from "primereact/dropdown";
+import { InputText } from "primereact/inputtext";
+import { useFormik } from "formik";
+import { Calendar as FormikCalendar } from "primereact/calendar";
 
 import "moment/locale/ru";
 import "react-big-calendar/lib/css/react-big-calendar.css";
@@ -11,22 +14,32 @@ import "react-big-calendar/lib/css/react-big-calendar.css";
 const localizer = momentLocalizer(moment);
 
 const CalendarPage = () => {
+  const procedures = [
+    { name: "Общий массаж", price: 65 },
+    { name: "Антицеллюлитный массаж", price: 45 },
+    { name: "Массаж спины (женский)", price: 35 },
+    { name: "Массаж спины (мужской)", price: 40 },
+    { name: "Массаж камнями", price: 70 },
+    { name: "Массаж спины + камни", price: 45 },
+    { name: "ШВЗ", price: 20 },
+    { name: "Другое" },
+  ];
   const [events, setEvents] = useState([
     {
       id: 1,
       start: moment().toDate(),
       end: moment().add(1, "hours").toDate(),
+      procedure: procedures[0],
+      title: "Some title",
+    },
+    {
+      id: 2,
+      start: moment().add(2, "hours").toDate(),
+      end: moment().add(3, "hours").toDate(),
+      procedure: procedures[0],
       title: "Some title",
     },
   ]);
-  const [selectedProcedure, setSelectedProcedure] = useState(null);
-  const procedures = [
-    { name: "New York", code: "NY" },
-    { name: "Rome", code: "RM" },
-    { name: "London", code: "LDN" },
-    { name: "Istanbul", code: "IST" },
-    { name: "Paris", code: "PRS" },
-  ];
   const [addEventModalOpen, setAddEventModalOpen] = useState(false);
 
   const minTime = new Date();
@@ -40,13 +53,40 @@ const CalendarPage = () => {
   };
 
   const onUpdateEvent = (slotInfo: any) => {
-    console.log("onUpdateEvent", slotInfo);
+    formik.setFieldValue("id", slotInfo.id);
+    formik.setFieldValue("title", slotInfo.title);
+    formik.setFieldValue("start", slotInfo.start);
+    formik.setFieldValue("end", slotInfo.end);
     setAddEventModalOpen(true);
   };
 
   const submitNewEvent = () => {
     setAddEventModalOpen(false);
   };
+
+  const onProcedureSelected = (e: any) => {
+    formik.setFieldValue("procedure", e.value);
+  };
+
+  const formik: any = useFormik({
+    initialValues: {
+      id: "",
+      title: "",
+      procedure: null,
+      start: "",
+      end: "",
+    },
+    onSubmit: (data: any) => {
+      console.log(data);
+      const updatedEvents = events.map((item) => {
+        if (item.id === data.id) {
+          return data;
+        }
+        return item;
+      });
+      setEvents(updatedEvents);
+    },
+  });
 
   return (
     <>
@@ -83,31 +123,66 @@ const CalendarPage = () => {
         />
       </div>
       <Dialog
-        header="Новая запись"
+        header="Редактировать запись"
         visible={addEventModalOpen}
         onHide={() => setAddEventModalOpen(false)}
         className="md:w-30rem"
       >
-        <div className="mb-4">
-          <Dropdown
-            value={selectedProcedure}
-            onChange={(e) => setSelectedProcedure(e.value)}
-            options={procedures}
-            optionLabel="name"
-            placeholder="Процедура"
-            className="w-full"
-          />
-        </div>
-        <div className="flex-end">
-          <Button
-            label="Отмена"
-            severity="secondary"
-            raised
-            onClick={() => setAddEventModalOpen(false)}
-            className="mr-2"
-          />
-          <Button label="Готово" raised onClick={submitNewEvent} />
-        </div>
+        <form onSubmit={formik.handleSubmit}>
+          <div className="mb-4 form-group">
+            <span className="p-input-icon-left w-full">
+              <i className="pi pi-user" />
+              <InputText
+                name="title"
+                value={formik.values.title}
+                onChange={formik.handleChange}
+                placeholder="Клиент"
+                className="w-full"
+              />
+            </span>
+          </div>
+          <div className="mb-4">
+            <Dropdown
+              name="procedure"
+              value={formik.values.procedure}
+              onChange={onProcedureSelected}
+              options={procedures}
+              optionLabel="name"
+              placeholder="Процедура"
+              className="w-full"
+            />
+          </div>
+          <div className="mb-4">
+            <FormikCalendar
+              name="start"
+              value={formik.values.start}
+              onChange={formik.handleChange}
+              showTime
+              hourFormat="24"
+              className="w-full"
+            />
+          </div>
+          <div className="mb-4">
+            <FormikCalendar
+              name="end"
+              value={formik.values.end}
+              onChange={formik.handleChange}
+              showTime
+              hourFormat="24"
+              className="w-full"
+            />
+          </div>
+          <div className="flex-end">
+            <Button
+              label="Отмена"
+              severity="secondary"
+              raised
+              onClick={() => setAddEventModalOpen(false)}
+              className="mr-2"
+            />
+            <Button label="Готово" raised onClick={submitNewEvent} />
+          </div>
+        </form>
       </Dialog>
     </>
   );

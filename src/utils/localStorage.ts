@@ -36,3 +36,11 @@ export function getPlainValue(k: string): string | undefined {
   }
   return v;
 }
+
+export function removeValue(k: string): string | undefined {
+  const v = window.localStorage.removeItem(k);
+  if (typeof v !== "string") {
+    return undefined;
+  }
+  return v;
+}
